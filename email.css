@@ -1,0 +1,116 @@
+/* ===============================
+   FORTISIA EMAIL VALIDATOR - CSS
+   Style corporate basé sur la charte Fortisia
+   =============================== */
+
+/* Palette Fortisia */
+:root {
+  --fortisia-mauve: #8B5293;
+  --fortisia-orange: #FF9936;
+  --fortisia-green: #153F37;
+  --fortisia-grey: #D9D4CF;
+  --fortisia-dark: #262921;
+  --bg-light: #f8f7f5;
+}
+
+body {
+  font-family: 'Poppins', Arial, sans-serif;
+  background: var(--bg-light);
+  color: var(--fortisia-dark);
+  margin: 0;
+  padding: 0;
+}
+
+header {
+  background: white;
+  padding: 25px 40px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  border-bottom: 4px solid var(--fortisia-mauve);
+}
+
+header img {
+  height: 50px;
+}
+
+header h1 {
+  font-size: 26px;
+  margin: 0;
+  font-weight: 600;
+  color: var(--fortisia-mauve);
+}
+
+.container {
+  max-width: 900px;
+  margin: 40px auto;
+  background: white;
+  padding: 35px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+h2 {
+  color: var(--fortisia-green);
+  margin-top: 40px;
+}
+
+input, textarea, button {
+  width: 100%;
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  margin-top: 10px;
+  font-size: 15px;
+  font-family: inherit;
+}
+
+button {
+  background: var(--fortisia-mauve);
+  border: none;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+button:hover {
+  background: var(--fortisia-orange);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 25px;
+}
+
+th {
+  background: var(--fortisia-green);
+  color: white;
+  padding: 12px;
+  font-weight: 600;
+}
+
+td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  background: white;
+}
+
+.valid {
+  background: #d4ffd4 !important;
+}
+.invalid {
+  background: #ffd4d4 !important;
+}
+.risky {
+  background: #fff5c2 !important;
+}
+
+footer {
+  text-align: center;
+  padding: 25px;
+  color: var(--fortisia-dark);
+  opacity: 0.8;
+  font-size: 14px;
+}

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Fortisia Email Validator</title>
+
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Librairie Excel -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+
+<body>
+
+<header>
+  <img src="fortisia-logo.png" alt="Fortisia Logo">
+  <h1>Fortisia Email Validator</h1>
+</header>
+
+<div class="container">
+
+  <h2>1️⃣ Tester un email</h2>
+  <input id="singleEmail" placeholder="email@example.com">
+  <button onclick="verifySingle()">Tester</button>
+
+  <h2>2️⃣ Tester plusieurs emails (séparés par virgule)</h2>
+  <textarea id="multiEmails" rows="3" placeholder="email1@gmail.com, email2@yahoo.com, ..."></textarea>
+  <button onclick="verifyMultiple()">Tester plusieurs</button>
+
+  <h2>3️⃣ Importer un fichier Excel (.xlsx)</h2>
+  <input type="file" id="excelFile" accept=".xlsx">
+  <button onclick="processExcel()">Valider emails du fichier</button>
+
+  <h2>Résultats</h2>
+  <table id="resultsTable" style="display:none;">
+    <thead>
+      <tr>
+        <th>Nom</th>
+        <th>Prénom</th>
+        <th>Email</th>
+        <th>Statut</th>
+        <th>Score</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+</div>
+
+<footer>
+  © 2025 Fortisia — Smart Tools for Unions & Organizations
+</footer>
+
+<script>
+const API = "https://rapid-email-verifier.fly.dev/api/validate";
+
+// Ajoute une ligne au tableau
+function addResultRow(name, surname, email, status, score) {
+  const table = document.getElementById("resultsTable");
+  const tbody = table.querySelector("tbody");
+
+  const css =
+    status === "VALID" ? "valid" :
+    status === "INVALID" ? "invalid" : "risky";
+
+  const tr = document.createElement("tr");
+  tr.innerHTML = `
+    <td>${name || ""}</td>
+    <td>${surname || ""}</td>
+    <td>${email}</td>
+    <td class="${css}">${status}</td>
+    <td>${score}</td>
+  `;
+  tbody.appendChild(tr);
+  table.style.display = "table";
+}
+
+// Vérification email simple
+async function verifySingle() {
+  const email = document.getElementById("singleEmail").value.trim();
+  if (!email) return alert("Entrez un email");
+
+  const res = await fetch(`${API}?email=${encodeURIComponent(email)}`);
+  const raw = await res.json();
+
+  addResultRow("", "", raw.email, raw.status, raw.score);
+}
+
+// Vérification multiple
+async function verifyMultiple() {
+  const raw = document.getElementById("multiEmails").value.trim();
+  if (!raw) return alert("Entrez des emails");
+
+  const emails = raw.split(",").map(e => e.trim()).filter(e => e.length);
+
+  for (let email of emails) {
+    const res = await fetch(`${API}?email=${encodeURIComponent(email)}`);
+    const data = await res.json();
+    addResultRow("", "", data.email, data.status, data.score);
+  }
+}
+
+// Excel
+function processExcel() {
+  const file = document.getElementById("excelFile").files[0];
+  if (!file) return alert("Sélectionnez un fichier Excel");
+
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    const data = new Uint8Array(e.target.result);
+    const workbook = XLSX.read(data, { type: "array" });
+
+    const sheet = workbook.SheetNames[0];
+    const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheet]);
+
+    validateExcelRows(rows);
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+async function validateExcelRows(rows) {
+  for (let r of rows) {
+    const email = r.Email?.trim();
+    if (!email) continue;
+
+    const res = await fetch(`${API}?email=${encodeURIComponent(email)}`);
+    const raw = await res.json();
+
+    addResultRow(r.Nom, r.Prenom, raw.email, raw.status, raw.score);
+  }
+}
+</script>
+
+</body>
+</html>
