@@ -1,4 +1,4 @@
-l.<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
@@ -24,7 +24,7 @@ l.<!DOCTYPE html>
   <button onclick="verifySingle()">Tester</button>
 
   <h2>2️⃣ Tester plusieurs emails (séparés par virgule)</h2>
-  <textarea id="multiEmails" rows="3" placeholder="email1@gmail.com, email2@yahoo.com, ..."></textarea>
+  <textarea id="multiEmails" rows="3" placeholder="email1@gmail.com, email2@yahoo.com"></textarea>
   <button onclick="verifyMultiple()">Tester plusieurs</button>
 
   <h2>3️⃣ Importer un fichier Excel (.xlsx)</h2>
@@ -52,9 +52,12 @@ l.<!DOCTYPE html>
 </footer>
 
 <script>
-const API = "https://rapid-email-verifier.fly.dev/api/validate";
+// ========================================================
+// CONFIG NETLIFY → API passe par proxy /api/...
+// ========================================================
+const API = "/api/validate";
 
-// Ajoute une ligne au tableau
+// Ajouter une ligne au tableau
 function addResultRow(name, surname, email, status, score) {
   const table = document.getElementById("resultsTable");
   const tbody = table.querySelector("tbody");
@@ -80,10 +83,13 @@ async function verifySingle() {
   const email = document.getElementById("singleEmail").value.trim();
   if (!email) return alert("Entrez un email");
 
-  const res = await fetch(`${API}?email=${encodeURIComponent(email)}`);
-  const raw = await res.json();
-
-  addResultRow("", "", raw.email, raw.status, raw.score);
+  try {
+    const res = await fetch(`${API}?email=${encodeURIComponent(email)}`);
+    const raw = await res.json();
+    addResultRow("", "", raw.email, raw.status, raw.score);
+  } catch (err) {
+    alert("Erreur de connexion");
+  }
 }
 
 // Vérification multiple
@@ -94,13 +100,17 @@ async function verifyMultiple() {
   const emails = raw.split(",").map(e => e.trim()).filter(e => e.length);
 
   for (let email of emails) {
-    const res = await fetch(`${API}?email=${encodeURIComponent(email)}`);
-    const data = await res.json();
-    addResultRow("", "", data.email, data.status, data.score);
+    try {
+      const res = await fetch(`${API}?email=${encodeURIComponent(email)}`);
+      const data = await res.json();
+      addResultRow("", "", data.email, data.status, data.score);
+    } catch {
+      addResultRow("", "", email, "ERROR", "-");
+    }
   }
 }
 
-// Excel
+// Excel processing
 function processExcel() {
   const file = document.getElementById("excelFile").files[0];
   if (!file) return alert("Sélectionnez un fichier Excel");
@@ -123,15 +133,16 @@ async function validateExcelRows(rows) {
     const email = r.Email?.trim();
     if (!email) continue;
 
-    const res = await fetch(`${API}?email=${encodeURIComponent(email)}`);
-    const raw = await res.json();
-
-    addResultRow(r.Nom, r.Prenom, raw.email, raw.status, raw.score);
+    try {
+      const res = await fetch(`${API}?email=${encodeURIComponent(email)}`);
+      const raw = await res.json();
+      addResultRow(r.Nom, r.Prenom, raw.email, raw.status, raw.score);
+    } catch {
+      addResultRow(r.Nom, r.Prenom, email, "ERROR", "-");
+    }
   }
 }
 </script>
 
 </body>
 </html>
-
-
