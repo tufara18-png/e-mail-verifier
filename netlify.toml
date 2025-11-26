@@ -1,0 +1,5 @@
+[[redirects]]
+  from = "/api/*"
+  to = "https://rapid-email-verifier.fly.dev/:splat"
+  status = 200
+  force = true
